@@ -4,73 +4,75 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # -------------------------
-# PAGE CONFIG
-# -------------------------
-st.set_page_config(page_title="Sales Dashboard", layout="wide")
-
-# -------------------------
-# SIMPLE LOGIN
+# SECURITY CHECK
 # -------------------------
 if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-# Login button
-if not st.session_state.logged_in:
-
-    st.title("🔐 Login Page")
-
-    email = st.text_input("Enter Gmail")
-    password = st.text_input("Enter Password", type="password")
-
-    if st.button("Login with Google"):
-
-        # Demo Login
-        if email.endswith("@gmail.com") and password == "1234":
-            st.session_state.logged_in = True
-            st.success("Login Successful")
-            st.rerun()
-        else:
-            st.error("Invalid Gmail or Password")
-
-    st.stop()
+    st.warning("Please login first")
+    st.switch_page("login.py")
 
 # -------------------------
-# DASHBOARD
+# PAGE CONFIG
+# -------------------------
+st.set_page_config(
+    page_title="Sales Dashboard",
+    layout="wide"
+)
+
+# -------------------------
+# TITLE
 # -------------------------
 st.title("🛒 Sales Data Analysis Dashboard")
 
-uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
+st.success(
+    f"Welcome {st.session_state.user}"
+)
+
+# -------------------------
+# FILE UPLOAD
+# -------------------------
+uploaded_file = st.file_uploader(
+    "Upload CSV",
+    type=["csv"]
+)
 
 if not uploaded_file:
     st.info("Please upload dataset")
     st.stop()
 
-# Load Data
+# -------------------------
+# LOAD DATA
+# -------------------------
 df = pd.read_csv(uploaded_file)
 
-# Clean Data
 df = df.dropna()
 
-# Total Sales
+# -------------------------
+# TOTAL SALES
+# -------------------------
 if "Price" in df.columns and "Quantity" in df.columns:
-    df["TotalSales"] = df["Price"] * df["Quantity"]
+    df["TotalSales"] = (
+        df["Price"] * df["Quantity"]
+    )
 
 # -------------------------
-# Preview
+# PREVIEW
 # -------------------------
 st.subheader("📊 Dataset Preview")
+
 st.dataframe(df.head())
 
 # -------------------------
-# Summary
+# SUMMARY
 # -------------------------
 st.subheader("📈 Summary Statistics")
+
 st.write(df.describe())
 
 # -------------------------
-# Top Products
+# TOP PRODUCTS
 # -------------------------
 if "Product" in df.columns:
+
     st.subheader("🏆 Top Products")
 
     top_products = (
@@ -82,13 +84,19 @@ if "Product" in df.columns:
     st.write(top_products)
 
     fig1, ax1 = plt.subplots()
-    top_products.plot(kind="bar", ax=ax1)
+
+    top_products.plot(
+        kind="bar",
+        ax=ax1
+    )
+
     st.pyplot(fig1)
 
 # -------------------------
-# Category Analysis
+# CATEGORY ANALYSIS
 # -------------------------
 if "Category" in df.columns:
+
     st.subheader("📦 Category Sales")
 
     category_sales = (
@@ -99,6 +107,7 @@ if "Category" in df.columns:
     st.write(category_sales)
 
     fig2, ax2 = plt.subplots()
+
     category_sales.plot(
         kind="pie",
         autopct="%1.1f%%",
@@ -108,9 +117,10 @@ if "Category" in df.columns:
     st.pyplot(fig2)
 
 # -------------------------
-# City Analysis
+# CITY ANALYSIS
 # -------------------------
 if "City" in df.columns:
+
     st.subheader("🌆 City-wise Sales")
 
     city_sales = (
@@ -121,9 +131,10 @@ if "City" in df.columns:
     st.write(city_sales)
 
 # -------------------------
-# Customer Analysis
+# CUSTOMER ANALYSIS
 # -------------------------
 if "CustomerID" in df.columns:
+
     st.subheader("👥 Top Customers")
 
     customer_spending = (
@@ -135,7 +146,7 @@ if "CustomerID" in df.columns:
     st.write(customer_spending.head())
 
 # -------------------------
-# NumPy Analysis
+# NUMPY ANALYSIS
 # -------------------------
 if "TotalSales" in df.columns:
 
@@ -143,13 +154,22 @@ if "TotalSales" in df.columns:
 
     st.subheader("🔢 NumPy Analysis")
 
-    st.write("Mean Sales:", np.mean(sales_array))
-    st.write("Total Sales:", np.sum(sales_array))
+    st.write(
+        "Mean Sales:",
+        np.mean(sales_array)
+    )
+
+    st.write(
+        "Total Sales:",
+        np.sum(sales_array)
+    )
 
 # -------------------------
-# Correlation Matrix
+# CORRELATION
 # -------------------------
-numeric_cols = df.select_dtypes(include=np.number)
+numeric_cols = df.select_dtypes(
+    include=np.number
+)
 
 if len(numeric_cols.columns) > 1:
 
@@ -158,8 +178,10 @@ if len(numeric_cols.columns) > 1:
     st.write(numeric_cols.corr())
 
 # -------------------------
-# Logout
+# LOGOUT
 # -------------------------
 if st.sidebar.button("Logout"):
+
     st.session_state.logged_in = False
-    st.rerun()
+
+    st.switch_page("login.py")
