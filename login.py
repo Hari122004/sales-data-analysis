@@ -65,6 +65,20 @@ with tab1:
 
         users = pd.read_csv("users.csv")
 
+        # Clean spaces
+        users["email"] = (
+            users["email"]
+            .astype(str)
+            .str.strip()
+        )
+
+        users["password"] = (
+            users["password"]
+            .astype(str)
+            .str.strip()
+        )
+
+        # Match user
         user = users[
             (users["email"] == email) &
             (users["password"] == password)
@@ -75,13 +89,16 @@ with tab1:
             st.session_state.logged_in = True
             st.session_state.user = email
 
-            st.success("Login Successful")
+            st.success(
+                "Login Successful"
+            )
 
             st.switch_page(
                 "pages/dashboard.py"
             )
 
         else:
+
             st.error(
                 "Invalid Gmail or Password"
             )
@@ -108,7 +125,14 @@ with tab2:
 
         users = pd.read_csv("users.csv")
 
-        # Check existing user
+        # Clean existing emails
+        users["email"] = (
+            users["email"]
+            .astype(str)
+            .str.strip()
+        )
+
+        # Check existing account
         if new_email in users["email"].values:
 
             st.warning(
@@ -117,16 +141,19 @@ with tab2:
 
         else:
 
+            # Create new user
             new_user = pd.DataFrame({
                 "email": [new_email],
                 "password": [new_password]
             })
 
+            # Append user
             users = pd.concat(
                 [users, new_user],
                 ignore_index=True
             )
 
+            # Save file
             users.to_csv(
                 "users.csv",
                 index=False
